@@ -32,27 +32,9 @@ void loop() {
     float anem_1_rdg = getData(anem_1_p,anem_1_n);
     float anem_2_rdg = getData(anem_2_p, anem_2_n);
   
-    // Running average filter
-    runningAvgBuffer[nextRunningAvg++] = anem_1_rdg;
-    if(nextRunningAvg >= runningAvgCount){
-      nextRunningAvg = 0;
-    }
-    float runningAvgRdg = 0;
-    for(int i = 0; i<runningAvgCount; i++){
-      runningAvgRdg += runningAvgBuffer[i];
-    }
-    runningAvgRdg /= runningAvgCount;
-
-    // Second Running Average Filter
-    runningAvgBuffer2[nextRunningAvg2++] = anem_2_rdg;
-    if(nextRunningAvg2 >= runningAvgCount2){
-      nextRunningAvg2 = 0;
-    }
-    float runningAvgRdg2 = 0;
-    for(int i = 0; i<runningAvgCount2; i++){
-      runningAvgRdg2 += runningAvgBuffer2[i];
-    }
-    runningAvgRdg2 /= runningAvgCount2;
+    // Getting the Anemometer Reading Values
+    float runningAvgRdg = getRunningAvgRdg(runningAvgCount, runningAvgBuffer, nextRunningAvg, anem_1_rdg);
+    float runningAvgRdg2 = getRunningAvgRdg(runningAvgCount2, runningAvgBuffer2, nextRunningAvg2, anem_2_rdg);
 
     // Turning readings into strings to be sent over I2C Bus
     String st1 = String(runningAvgRdg, 3);
@@ -78,6 +60,18 @@ void loop() {
     Wire.endTransmission();
   }
   delay(300);
+}
+
+float getRunningAvgRdg(int count, float buffer[], int next, float reading) {
+  buffer[next++] = reading; 
+  if(next >= count) {
+    next = 0;
+  }
+  float reading = 0;
+  for(int i = 0; i < count; i++) {
+    reading += buffer[i];
+  }
+  return reading /= count;
 }
 
 // Function for getting airspeed from anemometer p and n
