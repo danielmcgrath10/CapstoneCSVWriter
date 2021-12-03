@@ -5,10 +5,13 @@ int anem_1_p = A0;
 int anem_1_n = A1;
 int anem_2_p = A2;
 int anem_2_n = A3;
-int anem_3_p = A4;
-int anem_3_n = A5;
+int pitot_pin_pos = A4;
+int pitot_pin_ref = A5;
 float anem3Val = 0.0;
 float anem4Val = 0.0;
+
+// Physical Constants
+float density = 1.2;
 
 // Filter Variables
 const int runningAvgCount = 15;
@@ -69,7 +72,7 @@ void loop() {
 //  if(Serial.available() > 0) {
     float anem_1_rdg = getData(anem_1_p,anem_1_n);
     float anem_2_rdg = getData(anem_2_p, anem_2_n);
-    float anem_3_rdg = getData(anem_3_p, anem_3_n);
+    float pitot_rdg = getPitotData(pitot_pin_pos, pitot_pin_ref);    
   
     // Running average filter
     runningAvgBuffer[nextRunningAvg++] = anem_1_rdg;
@@ -92,27 +95,16 @@ void loop() {
       runningAvgRdg2 += runningAvgBuffer2[i];
     }
     runningAvgRdg2 /= runningAvgCount2;
-
-    // Third Running Average Filter
-    runningAvgBuffer3[nextRunningAvg3++] = anem_3_rdg;
-    if(nextRunningAvg3 >= runningAvgCount3){
-      nextRunningAvg3 = 0;
-    }
-    float runningAvgRdg3 = 0;
-    for(int i = 0; i<runningAvgCount3; i++){
-      runningAvgRdg3 += runningAvgBuffer3[i];
-    }
-    runningAvgRdg3 /= runningAvgCount3;
     
     Serial.print(runningAvgRdg);
     Serial.print(",");
     Serial.print(runningAvgRdg2);
     Serial.print(",");
-    Serial.print(runningAvgRdg3);
-    Serial.print(",");
     Serial.print(anem3Val);
     Serial.print(",");
     Serial.print(anem4Val);
+    Serial.print(",");
+    Serial.print(pitot_rdg);
     Serial.println();
 //  }
   delay(300);
@@ -128,6 +120,14 @@ float getData(int posPin, int negPin){
     float airspeed = ((float)diff / 1023.0) * 20.0;
     //Serial.println(airspeed);
     return airspeed;  
+}
+
+float getPitotData(int posPin, int refPin) {
+  int pitot_voltage_pos = analogRead(posPin);
+  int pitot_voltage_ref = analogRead(refPin);
+  int pitot_voltage = pitot_voltage_pos - pitot_voltage_ref; 
+  float pitotPressRdg = (((float)pitot_voltage / 1023.0) * 1244.2);
+  float pitot_vel_rdg = sqrt((2*(pitotPressRdg))/density)-3.18;
 }
 
 // Outputting values to the Serial port while not receiving anything
