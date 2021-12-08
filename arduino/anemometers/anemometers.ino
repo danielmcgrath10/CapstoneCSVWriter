@@ -20,15 +20,17 @@ void loop() {
     // get incoming byte:
     inByte = Serial.read();
     // read first analog input:
-    firstSensorPlus = analogRead(A0);
-    firstSensorMinus = analogRead(A1);
+    firstSensorPlus = analogRead(A4);
+    firstSensorMinus = analogRead(A5);
     // read second analog input:
 //    secondSensorPlus = analogRead(A2);
 //    secondSensorMinus = analogRead(A2);
 
     int diff = firstSensorPlus - firstSensorMinus;
     float conv = ((float)diff / 1023.0) * 20.0;
-    Serial.println(conv);
+    Serial.print(firstSensorPlus);
+    Serial.print(", ");
+    Serial.println(firstSensorMinus);
 
     
 //    Serial.print(",");

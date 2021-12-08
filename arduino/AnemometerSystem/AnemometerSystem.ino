@@ -30,7 +30,7 @@ void loop() {
   for(int i = 0; i<runningAvgCount; i++){
     runningAvgRdg += runningAvgBuffer[i];
   }
-  runningAvgRdg = /= runningAvgCount;
+  runningAvgRdg  /= runningAvgCount;
   Serial.println(runningAvgRdg);
   delay(50);
   

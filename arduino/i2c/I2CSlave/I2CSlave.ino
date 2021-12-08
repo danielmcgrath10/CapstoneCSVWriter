@@ -1,12 +1,12 @@
 #include <Wire.h>
 
 // Initializing values
-int anem_1_p = A0;
-int anem_1_n = A1;
-int anem_2_p = A2;
-int anem_2_n = A3;
-int pitot_pin_pos = A4;
-int pitot_pin_ref = A5;
+const int anem_1_p = A0;
+const int anem_1_n = A1;
+const int anem_2_p = A2;
+const int anem_2_n = A3;
+const int pitot_pin_pos = A4;
+const int pitot_pin_ref = A5;
 float anem3Val = 0.0;
 float anem4Val = 0.0;
 
@@ -28,20 +28,9 @@ const int runningAvgCount3 = 15;
 float runningAvgBuffer3[runningAvgCount3];
 int nextRunningAvg3;
 
-void setup() {
-  // put your setup code here, to run once:
-  Serial.begin(9600);
-  while(!Serial) {
-    ;
-  }
-  Wire.begin(9);
-  Wire.onReceive(onReceiveVals);
-//  establishContact();
-}
-
 // Callback function for when the Wire file receives data
 // Called when the master arduino sends data over the bus to the slave
-void onReceiveVals(int bytes){
+static void onReceiveVals(int bytes){
   int index = 0;
   String dataString1 = "";
   String dataString2 = "";
@@ -67,37 +56,51 @@ void onReceiveVals(int bytes){
   anem4Val = dataString2.toFloat();
 }
 
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(9600);
+//  while(!Serial) {
+//    ;
+//  }
+//  Wire.begin(9);
+//  Wire.onReceive(onReceiveVals);
+//  establishContact();
+}
+
 void loop() {
   // put your main code here, to run repeatedly:
 //  if(Serial.available() > 0) {
     float anem_1_rdg = getData(anem_1_p,anem_1_n);
-    float anem_2_rdg = getData(anem_2_p, anem_2_n);
-    float pitot_rdg = getPitotData(pitot_pin_pos, pitot_pin_ref);    
+    Serial.println(anem_1_rdg);
+//    float anem_2_rdg = getData(anem_2_p, anem_2_n);
+//    float pitot_rdg = getPitotData(pitot_pin_pos, pitot_pin_ref);    
 
     // Getting the Anemometer Reading Values
-    float runningAvgRdg = getRunningAvgRdg(runningAvgCount, runningAvgBuffer, nextRunningAvg, anem_1_rdg);
-    float runningAvgRdg2 = getRunningAvgRdg(runningAvgCount2, runningAvgBuffer2, nextRunningAvg2, anem_2_rdg);
+//    float runningAvgRdg = getRunningAvgRdg(runningAvgCount, runningAvgBuffer, nextRunningAvg, anem_1_rdg);
+//    float runningAvgRdg2 = getRunningAvgRdg(runningAvgCount2, runningAvgBuffer2, nextRunningAvg2, anem_2_rdg);
+//    float runningAvgRdg = anem_1_rdg;
+//    float runningAvgRdg2 = anem_2_rdg;
     
-    Serial.print(runningAvgRdg);
-    Serial.print(",");
-    Serial.print(runningAvgRdg2);
-    Serial.print(",");
-    Serial.print(anem3Val);
-    Serial.print(",");
-    Serial.print(anem4Val);
-    Serial.print(",");
-    Serial.print(pitot_rdg);
-    Serial.println();
+//    Serial.print(runningAvgRdg);
+//    Serial.print(",");
+//    Serial.print(runningAvgRdg2);
+//    Serial.print(",");
+//    Serial.print(anem3Val);
+//    Serial.print(",");
+//    Serial.print(anem4Val);
+//    Serial.print(",");
+//    Serial.print(pitot_rdg);
+//    Serial.println();
 //  }
   delay(300);
 }
 
-float getRunningAvgRdg(int count, float buffer[], int next, float reading) {
-  buffer[next++] = reading; 
+float getRunningAvgRdg(int count, float buffer[], int next, float anem_reading) {
+  buffer[next++] = anem_reading; 
   if(next >= count) {
     next = 0;
   }
-  float reading = 0;
+  float reading = 0.0;
   for(int i = 0; i < count; i++) {
     reading += buffer[i];
   }
@@ -111,7 +114,6 @@ float getData(int posPin, int negPin){
     int SensorRdg_neg = analogRead(negPin);
     int diff = SensorRdg_pos - SensorRdg_neg;
     float airspeed = ((float)diff / 1023.0) * 20.0;
-    //Serial.println(airspeed);
     return airspeed;  
 }
 
